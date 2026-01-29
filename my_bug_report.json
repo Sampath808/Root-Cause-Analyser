@@ -1,0 +1,22 @@
+
+{
+  "title": "500 error on POST /summarize when given empty text (IndexError in tokenizer usage)",
+  "description": "When sending an empty string or a JSON body with an empty `text` field to the /summarize endpoint, the API returns HTTP 500. Root cause appears to be an unguarded access to the first token after tokenization; when the tokenizer returns an empty token list the code does `tokens[0]` which raises IndexError. This occurs in the request handler in app/api.py and propagates up through Uvicorn.",
+  "steps_to_reproduce": [
+    "Step 1: Start the API server (e.g. `uvicorn app.api:app --host 0.0.0.0 --port 8000`).",
+    "Step 2: Send a request with an empty `text` field: `curl -X POST http://localhost:8000/summarize -H \"Content-Type: application/json\" -d '{\"text\":\"\"}'`",
+    "Step 3: Observe a 500 response and server log shows an IndexError stack trace; no user-friendly validation error is returned."
+  ],
+  "expected_behavior": "The endpoint should validate the input and return a 400 Bad Request with a helpful message like `\"text\" must not be empty` or return an empty summary with a 200 and an explanation. It should not raise an unhandled IndexError and crash the request handler.",
+  "actual_behavior": "The request handler raises an unhandled IndexError, returning HTTP 500. No validation error is returned and the trace shows direct access to tokens[0] without checking token list length.",
+  "error_message": "IndexError: list index out of range",
+  "stack_trace": "Traceback (most recent call last):\n  File \"/usr/local/lib/python3.8/site-packages/uvicorn/protocols/http/h11_impl.py\", line 429, in run_asgi\n    result = await app( scope, receive, send )\n  File \"/usr/local/lib/python3.8/site-packages/uvicorn/middleware/proxy_headers.py\", line 78, in __call__\n    return await self.app(scope, receive, send)\n  File \"/app/app/api.py\", line 78, in summarize\n    tokens = tokenizer.encode(text)\n  File \"/app/summarizer/tokenizer.py\", line 34, in encode\n    # simple whitespace tokenizer, returns [] for empty string\n    return [t for t in text.split(' ') if t]\n  File \"/app/app/api.py\", line 82, in summarize\n    first_token = tokens[0]  # <-- fails when tokens == []\nIndexError: list index out of range",
+  "environment": {
+    "language": "Python",
+    "framework": "FastAPI==0.95.1, Uvicorn==0.22.0, transformers==4.30.0",
+    "os": "Ubuntu 22.04 (docker python:3.8-slim)",
+    "version": "v1.2.0"
+  },
+  "severity": "medium",
+  "reporter": "Kishore"
+}

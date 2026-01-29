@@ -1,0 +1,21 @@
+{
+  "title": "Login fails with NoneType error",
+  "description": "When attempting to login with a non-existent email address, the application crashes with a TypeError instead of showing a proper error message.",
+  "steps_to_reproduce": [
+    "Navigate to /login",
+    "Enter email: nonexistent@example.com",
+    "Enter any password",
+    "Click 'Login' button"
+  ],
+  "expected_behavior": "Should show 'Invalid credentials' error message",
+  "actual_behavior": "Application crashes with 500 Internal Server Error",
+  "error_message": "TypeError: 'NoneType' object has no attribute 'id'",
+  "stack_trace": "Traceback (most recent call last):\n  File \"src/auth/login.py\", line 45, in authenticate_user\n    return user.id\nTypeError: 'NoneType' object has no attribute 'id'",
+  "environment": {
+    "python_version": "3.10.5",
+    "framework": "Flask 2.3.0",
+    "os": "Ubuntu 22.04"
+  },
+  "severity": "high",
+  "reporter": "qa_team"
+}
