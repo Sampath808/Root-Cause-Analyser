@@ -1,22 +1,21 @@
 {
-  "title": "API endpoint times out on large datasets",
-  "description": "The /api/v1/reports endpoint times out when processing requests for datasets larger than 10,000 records. This started happening after the recent performance optimization update.",
+  "title": "Server fails to start if OPENAI_API_KEY is not set (KeyError on startup)",
+  "description": "The application reads OPENAI_API_KEY directly with os.environ['OPENAI_API_KEY'] during startup in app/main.py (or similar startup module). If the environment variable is not set the process immediately crashes with a KeyError. This prevents the service from starting in environments where the key is expected to be optional or is provided via secrets manager at runtime. The code does not check for a missing key or provide a clear error message explaining which env var is required.",
   "steps_to_reproduce": [
-    "Send GET request to /api/v1/reports",
-    "Include parameter: limit=15000",
-    "Wait for response"
+    "Step 1: Unset OPENAI_API_KEY in the shell (e.g. `unset OPENAI_API_KEY`) or start container without setting the variable.",
+    "Step 2: Start the server: `python -m app.main` or `uvicorn app.api:app --host 0.0.0.0 --port 8000` (depending on repo entrypoint).",
+    "Step 3: The process exits immediately with KeyError and stack trace referencing app/main.py line where os.environ[...] is used."
   ],
-  "expected_behavior": "Should return paginated results or process request within 30 seconds",
-  "actual_behavior": "Request times out after 30 seconds with no response",
-  "error_message": "504 Gateway Timeout",
-  "stack_trace": null,
+  "expected_behavior": "The app should either: (a) fail with a clear, descriptive error (e.g. `Environment variable OPENAI_API_KEY is required`) and a non-stack-trace exit, or (b) treat the key as optional and skip OpenAI integration, continuing to serve endpoints that do not require the key. It should not raise an uncaught KeyError.",
+  "actual_behavior": "The process raises a KeyError on startup and exits with stack trace. There is no helpful message indicating which variable is missing or how to configure it.",
+  "error_message": "KeyError: 'OPENAI_API_KEY'",
+  "stack_trace": "Traceback (most recent call last):\n  File \"/app/app/main.py\", line 1, in <module>\n    import os\n  File \"/app/app/main.py\", line 12, in <module>\n    OPENAI_API_KEY = os.environ['OPENAI_API_KEY']  # required for remote summarization backend\nKeyError: 'OPENAI_API_KEY'\n\nDuring handling of the above exception, another exception occurred:\n\nTraceback (most recent call last):\n  File \"/usr/local/bin/uvicorn\", line 8, in <module>\n    sys.exit(main())\n  File \"/usr/local/lib/python3.8/site-packages/uvicorn/main.py\", line 476, in main\n    run()\n  File \"/usr/local/lib/python3.8/site-packages/uvicorn/main.py\", line 470, in run\n    server.run()\n  File \"/usr/local/lib/python3.8/site-packages/uvicorn/server.py\", line 72, in run\n    raise e\nKeyError: 'OPENAI_API_KEY'",
   "environment": {
-    "node_version": "18.17.0",
-    "framework": "Express.js 4.18.2",
-    "database": "PostgreSQL 15.3",
-    "os": "Docker on AWS ECS"
+    "language": "Python",
+    "framework": "FastAPI==0.95.1, openai==0.27.0 (optional integration)",
+    "os": "Ubuntu 22.04 / Docker",
+    "version": "v1.2.0"
   },
-  "severity": "medium",
-  "reporter": "customer_support",
-  "affected_version": "v2.1.3"
+  "severity": "high",
+  "reporter": "test_user"
 }

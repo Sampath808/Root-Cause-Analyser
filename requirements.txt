@@ -1,5 +1,5 @@
 # Core
-google-genai>=0.2.0
+google-adk[a2a]>=0.1.0
 PyGithub>=2.1.1
 python-dotenv>=1.0.0
 
@@ -8,10 +8,11 @@ requests>=2.31.0
 pydantic>=2.0.0
 rich>=13.0.0
 
+# A2A Server dependencies
+uvicorn>=0.24.0
+fastapi>=0.104.0
+
 # Optional but recommended
 tree-sitter>=0.20.0
 tree-sitter-python>=0.20.0
 gitpython>=3.1.0
-# Optional API dependencies
-fastapi>=0.104.0
-uvicorn>=0.24.0
