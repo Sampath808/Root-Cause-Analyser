@@ -1,10 +1,12 @@
 # Root Cause Analysis Agent System
 
-A production-ready, LLM-agentic Root Cause Analysis system that intelligently investigates software bugs by exploring GitHub repositories using tool-calling capabilities. The system uses Google's Gemini API with the ADK (Application Development Kit) and function calling to allow agents to decide which files to examine, trace execution flows, and identify the exact commit and author responsible for bugs.
+A production-ready, LLM-agentic Root Cause Analysis system that intelligently investigates software bugs by exploring GitHub repositories using tool-calling capabilities. The system uses **Google ADK (Agent Development Kit) with Gemini models** and function calling to allow agents to decide which files to examine, trace execution flows, and identify the exact commit and author responsible for bugs.
 
 ## 🚀 Key Features
 
 - **🧠 Intelligent Investigation**: Uses LLM-guided tool calling to explore codebases on-demand
+- **🤖 Google ADK Integration**: Built with Google's Agent Development Kit for robust agent orchestration
+- **🔥 Gemini Models**: Powered by Google's Gemini 2.0 Flash for superior reasoning and analysis
 - **🔍 No Pre-indexing Required**: Dynamically explores repositories using GitHub's API
 - **👤 Author Attribution**: Identifies who wrote the problematic code and when
 - **📊 High Accuracy**: Self-critique system ensures reliable results
@@ -13,11 +15,21 @@ A production-ready, LLM-agentic Root Cause Analysis system that intelligently in
 
 ## 🏗️ Architecture
 
-The system consists of three main agents:
+The system consists of three main **intelligent AI agents** built with Google ADK:
 
 1. **Root Cause Agent**: Investigates bugs using 12 specialized GitHub tools
 2. **Critique Agent**: Reviews and validates findings for accuracy
-3. **Orchestrator Agent**: Manages the workflow and refinement process
+3. **Orchestrator Agent**: **Intelligent coordinator** that decides when to call which agent and manages the refinement loop
+
+### 🧠 Intelligent Orchestration
+
+Unlike traditional static workflows, the **Orchestrator Agent** is an AI that:
+
+- Decides when to run RCA analysis
+- Determines if critique feedback requires rework
+- Manages iteration loops intelligently
+- Makes decisions based on confidence scores and feedback quality
+- Continues refinement until critique agent approves OR max iterations reached
 
 ### Core Philosophy
 
@@ -31,22 +43,25 @@ The agents use GitHub's API and intelligent tool-calling to explore codebases on
 
 - Python 3.10 or higher
 - GitHub Personal Access Token
-- Google Gemini API Key
+- **Google Gemini API Key** (with ADK support)
 
 ### Setup
 
 1. **Clone the repository**
+
 ```bash
 git clone <repository-url>
 cd root_cause_analyzer
 ```
 
 2. **Install dependencies**
+
 ```bash
 pip install -r requirements.txt
 ```
 
 3. **Configure environment**
+
 ```bash
 cp .env.example .env
 # Edit .env with your API keys
@@ -55,9 +70,11 @@ cp .env.example .env
 4. **Set up API keys**
 
 Edit `.env` file:
+
 ```env
 GITHUB_TOKEN=your_github_personal_access_token_here
 GEMINI_API_KEY=your_gemini_api_key_here
+GEMINI_MODEL=gemini-2.0-flash-exp
 ```
 
 ## 🚀 Quick Start
@@ -84,22 +101,29 @@ python main.py \
 ```python
 from core.github_client import GitHubClient
 from agents.root_cause_agent import RootCauseAgent
+from agents.critique_agent import CritiqueAgent
+from agents.orchestrator_agent import OrchestratorAgent
 from models.bug_report import BugReport
 
-# Initialize
+# Initialize GitHub client
 github = GitHubClient(token, "owner/repo")
-agent = RootCauseAgent(gemini_key, github)
+
+# Initialize ADK agents with Gemini
+rca_agent = RootCauseAgent(github)
+critique_agent = CritiqueAgent(github)
+orchestrator = OrchestratorAgent(rca_agent, critique_agent)
 
 # Load bug report
 bug = BugReport.from_json_file("bug.json")
 
-# Analyze
-result = agent.analyze_bug(bug)
+# Run intelligent analysis with orchestration
+result = orchestrator.run_analysis(bug, max_refinement_iterations=3)
 
 # Access results
 print(f"Root cause: {result.root_cause.file_path}")
 print(f"Author: {result.author_info.name}")
 print(f"Commit: {result.commit_info.commit_sha}")
+print(f"Critique approved: {result.critique_approved}")
 ```
 
 ## 📋 Bug Report Format
@@ -147,6 +171,7 @@ The system includes 12 specialized GitHub tools:
 ## 📊 Output Formats
 
 ### Console Report
+
 ```
 ╔══════════════════════════════════════════════════════════════════════════════╗
 ║                           ROOT CAUSE ANALYSIS REPORT                        ║
@@ -160,6 +185,7 @@ The system includes 12 specialized GitHub tools:
 ```
 
 ### JSON Report
+
 ```json
 {
   "bug_report_title": "Login fails with NoneType error",
@@ -179,19 +205,21 @@ The system includes 12 specialized GitHub tools:
 ```
 
 ### Markdown Report
+
 Complete markdown report with all analysis details, commit information, and suggested fixes.
 
 ## ⚙️ Configuration
 
 ### Environment Variables
 
-| Variable | Description | Default |
-|----------|-------------|---------|
-| `GITHUB_TOKEN` | GitHub Personal Access Token | Required |
-| `GEMINI_API_KEY` | Google Gemini API Key | Required |
-| `MAX_RCA_ITERATIONS` | Maximum analysis iterations | 15 |
-| `MAX_REFINEMENT_ITERATIONS` | Maximum critique iterations | 2 |
-| `LOG_LEVEL` | Logging level | INFO |
+| Variable                    | Description                  | Default              |
+| --------------------------- | ---------------------------- | -------------------- |
+| `GITHUB_TOKEN`              | GitHub Personal Access Token | Required             |
+| `GEMINI_API_KEY`            | Google Gemini API Key        | Required             |
+| `GEMINI_MODEL`              | Gemini model to use          | gemini-2.0-flash-exp |
+| `MAX_RCA_ITERATIONS`        | Maximum analysis iterations  | 15                   |
+| `MAX_REFINEMENT_ITERATIONS` | Maximum critique iterations  | 2                    |
+| `LOG_LEVEL`                 | Logging level                | INFO                 |
 
 ### Command Line Options
 
@@ -210,6 +238,8 @@ python main.py --help
 
 ## 🧪 Testing
 
+### Quick Example
+
 Run the example analysis:
 
 ```bash
@@ -217,6 +247,68 @@ python examples/sample_analysis.py
 ```
 
 This will demonstrate the system using a sample bug report and public repository.
+
+### Comprehensive End-to-End Testing
+
+The system includes a comprehensive end-to-end test suite that validates the complete workflow using a real GitHub repository:
+
+**Test Repository:** `Sampath808/Smart_Summarizer`  
+**Bug Scenario:** YouTube video screenshots not visible in final report
+
+#### Validate Test Setup
+
+Before running tests, validate your environment:
+
+```bash
+python validate_test_setup.py
+```
+
+This checks Python version, dependencies, API keys, and connections.
+
+#### Run Tests
+
+```bash
+# Quick tests (recommended for development)
+python run_e2e_test.py --quick --verbose
+
+# Full test suite (complete validation)
+python run_e2e_test.py --full --verbose --save-logs
+
+# Mocked tests (no API calls, good for CI/CD)
+python run_e2e_test.py --mocked --verbose
+
+# Manual test using main.py
+python run_e2e_test.py --manual
+```
+
+#### Test Coverage
+
+The end-to-end test validates:
+
+- ✅ Bug report creation and validation
+- ✅ GitHub client connection and operations
+- ✅ Agent initialization (RCA, Critique, Orchestrator)
+- ✅ Individual tool functionality
+- ✅ Complete RCA analysis workflow
+- ✅ Orchestrated analysis with critique
+- ✅ Output generation (JSON, Markdown)
+- ✅ Error handling scenarios
+- ✅ Performance metrics validation
+
+#### Direct pytest Usage
+
+```bash
+# Run all tests
+pytest tests/test_end_to_end_real_repo.py -v -s
+
+# Run quick tests only (skip slow analysis)
+pytest tests/test_end_to_end_real_repo.py -v -s -m "not slow"
+
+# Run specific test
+pytest tests/test_end_to_end_real_repo.py::TestEndToEndRealRepo::test_01_bug_report_creation -v -s
+```
+
+See `TEST_DOCUMENTATION.md` for detailed testing information.
 
 ## 📁 Project Structure
 
@@ -344,7 +436,7 @@ The system successfully:
 ✅ Generates comprehensive reports in multiple formats  
 ✅ Completes analysis in under 5 minutes for typical bugs  
 ✅ Handles edge cases gracefully  
-✅ Provides high confidence scores (>0.8 for clear bugs)  
+✅ Provides high confidence scores (>0.8 for clear bugs)
 
 ---
 

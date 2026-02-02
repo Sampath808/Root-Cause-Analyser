@@ -1,0 +1,26 @@
+{
+  "title": "Youtube video screen shots not visible",
+  "description": "When the youtube video analysis is complete it should provide with some screen shots it took in middle of the video in the final report but its not displaying any images. The analysis process appears to complete successfully, but the expected screenshots that should be embedded or referenced in the final output are missing or not rendering properly.",
+  "steps_to_reproduce": [
+    "1. Run YouTube video analysis on any video URL using the Smart_Summarizer tool",
+    "2. Wait for the analysis process to complete (including video processing and screenshot capture)",
+    "3. Check the final analysis report/output document",
+    "4. Look for screenshots that should be included from the middle portions of the video",
+    "5. Observe that screenshots are missing or not visible in the final report"
+  ],
+  "expected_behavior": "The final analysis report should display screenshots that were captured from the middle of the YouTube video during the analysis process. These screenshots should be properly embedded, referenced, or linked in the output to provide visual context for the video content analysis.",
+  "actual_behavior": "Screenshots are not visible in the final report output. The analysis may complete without errors, but the visual elements (screenshots) that should accompany the text analysis are missing, not displayed, or not properly rendered in the final report format.",
+  "error_message": null,
+  "stack_trace": null,
+  "environment": {
+    "platform": "YouTube video analysis system",
+    "component": "Screenshot capture and display functionality",
+    "report_format": "Final analysis report output",
+    "video_source": "YouTube videos",
+    "analysis_type": "Video content summarization with visual elements"
+  },
+  "affected_version": null,
+  "severity": "medium",
+  "reporter": "User",
+  "reported_date": "2024-01-15T10:30:00"
+}

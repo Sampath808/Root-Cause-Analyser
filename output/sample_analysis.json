@@ -1,0 +1,30 @@
+{
+  "bug_report_title": "Youtube video screen shots not visible",
+  "root_cause": {
+    "file_path": "extracted_from_analysis",
+    "line_numbers": [],
+    "code_snippet": "",
+    "explanation": "## Root Cause Analysis\n\n### Summary\nThe screenshots captured during YouTube video analysis are not appearing in the final report due to failed video frame extraction and image saving processes in the `ScreenshotTool`.\n\n### Root Cause\nFile: `backend/tools/screenshot_tool.py`\nLines: 64-90\nCode:\n```python\ncap = cv2.VideoCapture(video_path)\nif not cap.isOpened():\n    raise ValueError(f\"Could not open video: {video_path}\")\n\nret, frame = cap.read()\nif not ret:\n    raise ValueError(f\"Could not read frame at timestamp {timestamp}s\")\n\nsuccess = cv2.imwrite(output_path, frame)\nif not success:\n    raise ValueError(f\"Could not save screenshot to {output_path}\")\n```\nExplanation: The code is responsible for opening the video and capturing a frame at a specific timestamp. If the video cannot be opened or the frame could not be read, appropriate exceptions are raised, preventing screenshot saving. Additionally, if saving the image fails, an error is raised. These failures lead to the absence of screenshots in the final report.\n\n### Execution Trace\n1. The `ScreenshotTool` tries to open a video file using OpenCV.\n2. It verifies if the video was opened successfully.\n3. It attempts to read a frame at the specified timestamp.\n4. If frame read fails or image saving fails, exceptions are raised, preventing further processing.\n\n### Commit Information\n- Commit SHA: 6a94853\n- Author: Sampath808 (sampathsrikakulapu@gmail.com)\n- Date: 2025-07-17\n- Message: Initial commit\n- URL: [commit url](https://github.com/Sampath808/Smart_Summarizer/commit/6a94853ed7f11b206cba16ee08af56f72905603a)\n\n### Suggested Fix\nEnsure that the video file path is correct and accessible. Add logging to capture errors in detail to diagnose issues with reading frames or saving images. Consider using an alternative method or tool if OpenCV fails to capture frames properly.\n\n### Verification Steps\n1. Confirm video file paths are correct and accessible from the system running the script.\n2. Run a video analysis task and check the logs for any errors related to frame capture or image saving.\n3. Validate that captured screenshots are saved in the designated directory before report generation.\n4. Ensure the screenshots directory exists and is correctly referenced in the final report output.\n\n### Confidence Score\n0.9",
+    "execution_trace": [],
+    "related_files": [],
+    "confidence_score": 0.8
+  },
+  "commit_info": null,
+  "author_info": null,
+  "verification_steps": [],
+  "suggested_fix": null,
+  "confidence_score": 1.0,
+  "tools_used": [
+    "search_in_file",
+    "get_directory_files",
+    "get_repository_structure",
+    "get_file_blame",
+    "find_file_dependencies",
+    "get_file_content",
+    "find_when_line_was_added"
+  ],
+  "iterations": 1,
+  "analysis_timestamp": "2026-02-03T00:18:32.896828",
+  "critique_approved": true,
+  "critique_comments": null
+}

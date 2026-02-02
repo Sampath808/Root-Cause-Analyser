@@ -1,5 +1,5 @@
 # Core
-google-genai>=0.2.0
+google-adk>=1.23.0
 PyGithub>=2.1.1
 python-dotenv>=1.0.0
 
