@@ -39,9 +39,7 @@ def main():
         return
 
     # Load a sample bug report
-    bug_report_path = (
-        Path(__file__).parent / "bug_reports" / "youtube_screenshots_bug.json"
-    )
+    bug_report_path = Path(__file__).parent / "bug_reports" / "my_bug_report.json"
 
     if not bug_report_path.exists():
         logger.error(f"Bug report file not found: {bug_report_path}")
